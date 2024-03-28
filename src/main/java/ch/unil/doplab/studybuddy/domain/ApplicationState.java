@@ -1,4 +1,4 @@
-package ch.unil.doplab.studybuddy.business;
+package ch.unil.doplab.studybuddy.domain;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -19,14 +19,14 @@ public class ApplicationState {
         return addStudent(UUID.randomUUID(), student);
     }
 
-    public Student addStudent(UUID id, Student student) {
-        student.setId(id);
-        students.put(id, student);
+    public Student addStudent(UUID uuid, Student student) {
+        student.setUUID(uuid);
+        students.put(uuid, student);
         return student;
     }
 
-    public boolean setStudent(UUID id, Student student) {
-        var theStudent = students.get(id);
+    public boolean setStudent(UUID uuid, Student student) {
+        var theStudent = students.get(uuid);
         if (theStudent == null) {
             return false;
         }
@@ -34,8 +34,8 @@ public class ApplicationState {
         return true;
         }
 
-    public boolean removeStudent(UUID id) {
-        return students.remove(id) != null;
+    public boolean removeStudent(UUID uuid) {
+        return students.remove(uuid) != null;
     }
 
     public Student getStudent(UUID uuid) {

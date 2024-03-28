@@ -1,14 +1,13 @@
 package ch.unil.doplab.studybuddy.rest;
 
-import ch.unil.doplab.studybuddy.business.ApplicationState;
-import ch.unil.doplab.studybuddy.business.Student;
+import ch.unil.doplab.studybuddy.domain.ApplicationState;
+import ch.unil.doplab.studybuddy.domain.Student;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Path("/students")

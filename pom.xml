@@ -4,10 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ch.unil.doplab</groupId>
-    <artifactId>StudyBuddy</artifactId>
+    <groupId>ch.unil.doplab.studybuddy</groupId>
+    <artifactId>StudyBuddyService</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>StudyBuddy</name>
+    <name>StudyBuddyService</name>
     <packaging>war</packaging>
 
     <properties>
@@ -54,6 +54,11 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ch.unil.doplab.studybuddy</groupId>
+            <artifactId>StudyBuddyDomain</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -62,14 +67,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.3.2</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>16</source>
-                    <target>16</target>
-                </configuration>
             </plugin>
         </plugins>
     </build>
