@@ -10,15 +10,18 @@ import java.util.*;
 @ApplicationScoped
 public class ApplicationState {
 
-    private Map<UUID,Student> students;
-    private Map<UUID,Teacher> teachers;
+    private Map<UUID, Student> students;
+    private Map<UUID, Teacher> teachers;
+    private Set<String> topics;
 
     @PostConstruct
     public void init() {
         students = new TreeMap<>();
         teachers = new TreeMap<>();
+        topics = new TreeSet<>();
         populateApplicationState();
     }
+
     public Student addStudent(Student student) {
         if (student.getUUID() != null) {
             return addStudent(student.getUUID(), student);
@@ -50,10 +53,9 @@ public class ApplicationState {
         if (theStudent == null) {
             return false;
         }
-//        theStudent.mergeWith(student);
         theStudent.replaceWith(student);
         return true;
-        }
+    }
 
     public boolean removeStudent(UUID uuid) {
         return students.remove(uuid) != null;
@@ -63,13 +65,41 @@ public class ApplicationState {
         return students.get(uuid);
     }
 
-    public Map<UUID,Student> getAllStudents() {
+    public Map<UUID, Student> getAllStudents() {
         return students;
+    }
+
+    public Set<String> getTopics() {
+        return topics;
     }
 
     private void populateApplicationState() {
         /*
-         *  Create topics
+         *  Populate topics
+         */
+        topics.add("Anthropology");
+        topics.add("Archaeology");
+        topics.add("Astronomy");
+        topics.add("Biology");
+        topics.add("Chemistry");
+        topics.add("Computing");
+        topics.add("Drawing");
+        topics.add("Economics");
+        topics.add("History");
+        topics.add("Law");
+        topics.add("Linguistics");
+        topics.add("Literature");
+        topics.add("Mathematics");
+        topics.add("Medicine");
+        topics.add("Music");
+        topics.add("Philosophy");
+        topics.add("Physics");
+        topics.add("Psychology");
+        topics.add("Sociology");
+        topics.add("Theology");
+
+        /*
+         *  Topics offered by teachers
          */
         var physics = new Topic(
                 "Physics",
@@ -77,14 +107,14 @@ public class ApplicationState {
                 EnumSet.allOf(Level.class));
 
         var math = new Topic(
-                "Math",
+                "Mathematics",
                 "The study of numbers, quantity, structure, space, and change.",
-                EnumSet.of(Level.INTERMEDIATE, Level.ADVANCED));
+                EnumSet.of(Level.Intermediate, Level.Advanced));
 
         var theology = new Topic(
                 "Theology",
                 "The study of the nature of the divine.",
-                EnumSet.of(Level.BEGINNER, Level.INTERMEDIATE));
+                EnumSet.of(Level.Beginner, Level.Intermediate));
 
         /*
          *  Create and register teachers
@@ -99,30 +129,47 @@ public class ApplicationState {
         albert.addTopic(physics);
         albert.addTopic(math);
 
-        var martin = addTeacher(UUID.fromString("9d6d81bb-9274-421d-a454-0f227037a348"), new Teacher("Martin", "Luther","luther@king.com","martin"));
+        var martin = addTeacher(UUID.fromString("9d6d81bb-9274-421d-a454-0f227037a348"), new Teacher("Martin", "Luther", "luther@king.com", "martin"));
         martin.addTopic(theology);
         martin.addLanguage("German");
         martin.setDescription("I am a German professor of theology and a seminal figure in the Protestant Reformation.");
         martin.addTimeslot(LocalDate.now(), LocalTime.now().plusHours(1).getHour());
 
         /*
-         *  Create and register students
+         *  Topic interests expressed by students
          */
-        var paul  = addStudent(UUID.fromString("b8d0c81d-e1c6-4708-bd02-d218a23e4805"), new Student("Paul", "Dirac", "dirac@quantum.org", "paul"));
-        paul.addLanguage("English"); paul.addLanguage("French");
+        physics = new Topic("Physics", null, Level.Advanced);
+        math = new Topic("Mathematics", null, Level.Intermediate);
+        theology = new Topic("Theology", null, Level.Beginner);
+
+        /*
+        /*  Create and register students
+         */
+        var paul = addStudent(UUID.fromString("b8d0c81d-e1c6-4708-bd02-d218a23e4805"), new Student("Paul", "Dirac", "dirac@quantum.org", "paul"));
+        paul.addLanguage("English");
+        paul.addLanguage("French");
+        paul.addInterest(physics);
+        paul.addInterest(theology);
 
         var robert = addStudent(UUID.fromString("0ab2ec68-c574-4d81-bed0-a93c31fab1c0"), new Student("Robert", "Oppenheimer", "oppenheimer@atomic.com", "robert"));
-        robert.addLanguage("English"); robert.addLanguage("French"); robert.addLanguage("German");
+        robert.addLanguage("English");
+        robert.addLanguage("French");
+        robert.addLanguage("German");
+        robert.addInterest(physics);
+        robert.addInterest(math);
 
         var richard = addStudent(UUID.fromString("5d53a98b-53a8-4580-adc1-28067b37582a"), new Student("Richard", "Feynman", "feynman@diagrams.net", "richard"));
         richard.addLanguage("English");
+        richard.addInterest(physics);
+        richard.addInterest(math);
+        richard.addInterest(theology);
 
         /*
          *  Create and book lessons
          */
         var topics = albert.getTopics();
         var topic = topics.get(0);
-        var level = Level.ADVANCED;
+        var level = Level.Advanced;
         var timeslot = albert.getTimeslots().first();
         var lesson = new Lesson(timeslot, topic, level);
         paul.deposit(albert.getHourlyFee());
