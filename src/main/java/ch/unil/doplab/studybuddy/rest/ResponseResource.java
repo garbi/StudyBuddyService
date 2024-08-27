@@ -8,6 +8,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.Collections;
 
+//TODO: Eventually, this class should be removed, as it was just for testing purposes.
 @Path("/evenValue")
 public class ResponseResource {
 

@@ -65,18 +65,23 @@ public class ApplicationState {
         return students.get(uuid);
     }
 
-    public Map<UUID, Student> getAllStudents() {
+    public Map<UUID,Student> getAllStudents() {
         return students;
+    }
+
+    public Map<UUID,Teacher> getAllTeachers() {
+        return teachers;
+    }
+
+    public Teacher getTeacher(UUID uuid) {
+        return teachers.get(uuid);
     }
 
     public Set<String> getTopics() {
         return topics;
     }
 
-    private void populateApplicationState() {
-        /*
-         *  Populate topics
-         */
+    private void populateTopics() {
         topics.add("Anthropology");
         topics.add("Archaeology");
         topics.add("Astronomy");
@@ -97,6 +102,10 @@ public class ApplicationState {
         topics.add("Psychology");
         topics.add("Sociology");
         topics.add("Theology");
+    }
+
+    private void populateApplicationState() {
+        populateTopics();
 
         /*
          *  Topics offered by teachers
@@ -123,11 +132,26 @@ public class ApplicationState {
         albert.addLanguage("German");
         albert.addLanguage("English");
         albert.setDescription("I am a theoretical physicist working at the Swiss Patent Office in Bern.");
-        albert.addTimeslot(LocalDate.now(), LocalTime.now().plusHours(1).getHour());
-        albert.addTimeslot(LocalDate.now(), LocalTime.now().plusHours(2).getHour());
-        albert.addTimeslot(LocalDate.now().plusDays(1), LocalTime.now().getHour());
+        albert.addTimeslot(LocalDate.now().plusDays(1), LocalTime.now().plusHours(1).getHour());
+        albert.addTimeslot(LocalDate.now().plusDays(1), LocalTime.now().plusHours(3).getHour());
+        albert.addTimeslot(LocalDate.now().plusDays(2), LocalTime.now().getHour());
         albert.addTopic(physics);
         albert.addTopic(math);
+        albert.setHourlyFee(40);
+
+        var isaac = addTeacher(UUID.fromString("f3b7d1b1-1b7b-4b7b-8b7b-1b7b7b7b7b7b"), new Teacher("Isaac", "Newton", "newton@jedi.edu", "isaac"));
+        isaac.addLanguage("English");
+        isaac.setDescription("I am an English mathematician, physicist, and astronomer.");
+        isaac.addTimeslot(LocalDate.now().plusDays(4), LocalTime.now().plusHours(4).getHour());
+        isaac.addTimeslot(LocalDate.now().plusDays(5), LocalTime.now().plusHours(3).getHour());
+        physics = physics.clone();
+        physics.setDescription("Studium materiae, energiae, et virium fundamentalium naturae.");
+        isaac.addTopic(physics);
+        math = math.clone();
+        math.setDescription("Studium numerorum, quantitatis, structurae, spatii, mutationis.");
+        isaac.addTopic(math);
+        isaac.rate(5);
+        isaac.rate(4);
 
         var martin = addTeacher(UUID.fromString("9d6d81bb-9274-421d-a454-0f227037a348"), new Teacher("Martin", "Luther", "luther@king.com", "martin"));
         martin.addTopic(theology);
@@ -172,7 +196,7 @@ public class ApplicationState {
         var level = Level.Advanced;
         var timeslot = albert.getTimeslots().first();
         var lesson = new Lesson(timeslot, topic, level);
-        paul.deposit(albert.getHourlyFee());
+        paul.deposit(2*albert.getHourlyFee());
         lesson.book(albert, paul);
     }
 }

@@ -1,18 +1,12 @@
 package ch.unil.doplab.studybuddy.rest;
 
-import ch.unil.doplab.studybuddy.domain.ApplicationState;
-import ch.unil.doplab.studybuddy.domain.Student;
+import ch.unil.doplab.studybuddy.domain.*;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Path("/service")
 public class ServiceResource {
@@ -34,4 +28,29 @@ public class ServiceResource {
         return new ArrayList<>(state.getTopics());
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/affinitiesWith/{studentId}")
+    public Map<UUID,Set<Affinity>> findAffinitiesWith(@PathParam("studentId") UUID id) {
+        Student student = state.getStudent(id);
+        var allAffinities = new TreeMap<UUID, Set<Affinity>>();
+        for (var teacher : state.getAllTeachers().values()) {
+            var affinities = student.findAffinitiesWith(teacher);
+            if (!affinities.isEmpty()) {
+                allAffinities.put(teacher.getUUID(), affinities);
+            }
+        }
+        return allAffinities;
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/bookLesson")
+    public Lesson bookLesson(Lesson lesson) {
+        var student = state.getStudent(lesson.getStudentID());
+        var teacher = state.getTeacher(lesson.getTeacherID());
+        lesson.book(teacher, student);
+        return lesson;
+    }
 }
