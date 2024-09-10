@@ -53,4 +53,26 @@ public class ServiceResource {
         lesson.book(teacher, student);
         return lesson;
     }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/cancelLesson")
+    public void cancelLesson(Lesson lesson) {
+        var student = state.getStudent(lesson.getStudentID());
+        var teacher = state.getTeacher(lesson.getTeacherID());
+        lesson.cancel(teacher, student);
+    }
+
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/rateLesson/{rating}")
+    public void rateLesson(Lesson lesson, @PathParam("rating") String ratingName) {
+        var rating = Rating.valueOf(ratingName);
+        var student = state.getStudent(lesson.getStudentID());
+        var teacher = state.getTeacher(lesson.getTeacherID());
+        teacher.rateLesson(lesson.getTimeslot(), rating);
+        student.rateLesson(lesson.getTimeslot(), rating);
+    }
 }

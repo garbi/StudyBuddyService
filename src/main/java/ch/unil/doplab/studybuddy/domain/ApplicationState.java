@@ -2,8 +2,10 @@ package ch.unil.doplab.studybuddy.domain;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jdk.jshell.execution.Util;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -105,6 +107,9 @@ public class ApplicationState {
     }
 
     private void populateApplicationState() {
+        Utils.testModeOn();
+
+        LocalDateTime timeslot;
         populateTopics();
 
         /*
@@ -132,9 +137,14 @@ public class ApplicationState {
         albert.addLanguage("German");
         albert.addLanguage("English");
         albert.setDescription("I am a theoretical physicist working at the Swiss Patent Office in Bern.");
-        albert.addTimeslot(LocalDate.now().plusDays(1), LocalTime.now().plusHours(1).getHour());
-        albert.addTimeslot(LocalDate.now().plusDays(1), LocalTime.now().plusHours(3).getHour());
-        albert.addTimeslot(LocalDate.now().plusDays(2), LocalTime.now().getHour());
+        timeslot = LocalDateTime.now().minusDays(1).plusHours(1).withMinute(0).withSecond(0).withNano(0);
+        albert.addTimeslot(timeslot);
+        timeslot = timeslot.plusHours(1);
+        albert.addTimeslot(timeslot);
+        timeslot = LocalDateTime.now().plusDays(1).plusHours(3).withMinute(0).withSecond(0).withNano(0);
+        albert.addTimeslot(timeslot);
+        timeslot = LocalDateTime.now().plusDays(2).withMinute(0).withSecond(0).withNano(0);
+        albert.addTimeslot(timeslot);
         albert.addTopic(physics);
         albert.addTopic(math);
         albert.setHourlyFee(40);
@@ -142,22 +152,29 @@ public class ApplicationState {
         var isaac = addTeacher(UUID.fromString("f3b7d1b1-1b7b-4b7b-8b7b-1b7b7b7b7b7b"), new Teacher("Isaac", "Newton", "newton@jedi.edu", "isaac"));
         isaac.addLanguage("English");
         isaac.setDescription("I am an English mathematician, physicist, and astronomer.");
-        isaac.addTimeslot(LocalDate.now().plusDays(4), LocalTime.now().plusHours(4).getHour());
-        isaac.addTimeslot(LocalDate.now().plusDays(5), LocalTime.now().plusHours(3).getHour());
+        timeslot = LocalDateTime.now().plusDays(5).plusHours(3).withMinute(0).withSecond(0).withNano(0);
+        isaac.addTimeslot(timeslot);
+        timeslot = LocalDateTime.now().plusDays(4).plusHours(4).withMinute(0).withSecond(0).withNano(0);
+        isaac.addTimeslot(timeslot);
+        timeslot = LocalDateTime.now().plusDays(2).withMinute(0).withSecond(0).withNano(0);
+        isaac.addTimeslot(timeslot);
         physics = physics.clone();
         physics.setDescription("Studium materiae, energiae, et virium fundamentalium naturae.");
         isaac.addTopic(physics);
         math = math.clone();
         math.setDescription("Studium numerorum, quantitatis, structurae, spatii, mutationis.");
         isaac.addTopic(math);
-        isaac.rate(5);
-        isaac.rate(4);
+        isaac.rate(Teacher.maxRating);
+        isaac.rate(Teacher.maxRating - 1);
 
         var martin = addTeacher(UUID.fromString("9d6d81bb-9274-421d-a454-0f227037a348"), new Teacher("Martin", "Luther", "luther@king.com", "martin"));
         martin.addTopic(theology);
         martin.addLanguage("German");
         martin.setDescription("I am a German professor of theology and a seminal figure in the Protestant Reformation.");
-        martin.addTimeslot(LocalDate.now(), LocalTime.now().plusHours(1).getHour());
+        timeslot = LocalDateTime.now().plusHours(1).withMinute(0).withSecond(0).withNano(0);
+        martin.addTimeslot(timeslot);
+        timeslot = LocalDateTime.now().plusDays(1).plusHours(1).withMinute(0).withSecond(0).withNano(0);
+        martin.addTimeslot(timeslot);
 
         /*
          *  Topic interests expressed by students
@@ -191,12 +208,18 @@ public class ApplicationState {
         /*
          *  Create and book lessons
          */
+        paul.deposit(3 * albert.getHourlyFee());
+        timeslot = albert.getTimeslots().first();
         var topics = albert.getTopics();
         var topic = topics.get(0);
         var level = Level.Advanced;
-        var timeslot = albert.getTimeslots().first();
         var lesson = new Lesson(timeslot, topic, level);
-        paul.deposit(2*albert.getHourlyFee());
         lesson.book(albert, paul);
+
+        timeslot = albert.getTimeslots().first();
+        lesson = new Lesson(timeslot, topic, level);
+        lesson.book(albert, paul);
+
+        Utils.testModeOff();
     }
 }
