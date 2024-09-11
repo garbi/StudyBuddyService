@@ -1,11 +1,13 @@
 package ch.unil.doplab.studybuddy.rest;
 
 import ch.unil.doplab.studybuddy.domain.*;
+import jakarta.ejb.Local;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Path("/service")
@@ -18,7 +20,7 @@ public class ServiceResource {
     @Path("/reset")
     public Response reset() {
         state.init();
-        return Response.ok("StudyBuddy Service was reset").build();
+        return Response.ok("StudyBuddy Service was reset at " + LocalDateTime.now()).build();
     }
 
     @GET

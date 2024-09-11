@@ -79,6 +79,15 @@ public class ApplicationState {
         return teachers.get(uuid);
     }
 
+    public boolean setTeacher(UUID uuid, Teacher teacher) {
+        var theTeacher = students.get(uuid);
+        if (theTeacher == null) {
+            return false;
+        }
+        theTeacher.replaceWith(teacher);
+        return true;
+    }
+
     public Set<String> getTopics() {
         return topics;
     }
@@ -209,14 +218,13 @@ public class ApplicationState {
          *  Create and book lessons
          */
         paul.deposit(3 * albert.getHourlyFee());
-        timeslot = albert.getTimeslots().first();
-        var topics = albert.getTopics();
-        var topic = topics.get(0);
+        timeslot = albert.firstAvailableTimeslot();
+        var topic = physics;
         var level = Level.Advanced;
         var lesson = new Lesson(timeslot, topic, level);
         lesson.book(albert, paul);
 
-        timeslot = albert.getTimeslots().first();
+        timeslot = albert.firstAvailableTimeslot();
         lesson = new Lesson(timeslot, topic, level);
         lesson.book(albert, paul);
 
