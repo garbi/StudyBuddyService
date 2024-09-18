@@ -1,7 +1,6 @@
 package ch.unil.doplab.studybuddy.rest;
 
 import ch.unil.doplab.studybuddy.domain.ApplicationState;
-import ch.unil.doplab.studybuddy.domain.Student;
 import ch.unil.doplab.studybuddy.domain.Teacher;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -10,7 +9,6 @@ import jakarta.ws.rs.core.MediaType;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedSet;
 import java.util.UUID;
 
 @Path("/teachers")
