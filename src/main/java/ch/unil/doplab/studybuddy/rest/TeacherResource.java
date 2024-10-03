@@ -44,7 +44,6 @@ public class TeacherResource {
         return state.setTeacher(id, teacher);
     }
 
-
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -53,6 +52,10 @@ public class TeacherResource {
         return teacher;
     }
 
-
-
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{id}")
+    public boolean removeTeacher(@PathParam("id") UUID id) {
+        return state.removeTeacher(id);
+    }
 }

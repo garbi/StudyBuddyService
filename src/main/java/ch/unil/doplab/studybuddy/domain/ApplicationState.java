@@ -2,8 +2,6 @@ package ch.unil.doplab.studybuddy.domain;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
-import jdk.jshell.execution.Util;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -14,6 +12,7 @@ public class ApplicationState {
 
     private Map<UUID, Student> students;
     private Map<UUID, Teacher> teachers;
+    private Map<String, User> users;
     private Set<String> topics;
 
     @PostConstruct
@@ -80,12 +79,16 @@ public class ApplicationState {
     }
 
     public boolean setTeacher(UUID uuid, Teacher teacher) {
-        var theTeacher = students.get(uuid);
+        var theTeacher = teachers.get(uuid);
         if (theTeacher == null) {
             return false;
         }
         theTeacher.replaceWith(teacher);
         return true;
+    }
+
+    public boolean removeTeacher(UUID uuid) {
+        return teachers.remove(uuid) != null;
     }
 
     public Set<String> getTopics() {
@@ -145,7 +148,7 @@ public class ApplicationState {
         var albert = addTeacher(UUID.fromString("2b7da5cb-a2ab-4077-be57-2b75bfc9f67b"), new Teacher("Albert", "Einstein", "einstein@emc2.org", "albert"));
         albert.addLanguage("German");
         albert.addLanguage("English");
-        albert.setDescription("I am a theoretical physicist working at the Swiss Patent Office in Bern.");
+        albert.setBiography("I am a theoretical physicist working at the Swiss Patent Office in Bern.");
         timeslot = LocalDateTime.now().minusDays(1).plusHours(1).withMinute(0).withSecond(0).withNano(0);
         albert.addTimeslot(timeslot);
         timeslot = timeslot.plusHours(1);
@@ -156,11 +159,11 @@ public class ApplicationState {
         albert.addTimeslot(timeslot);
         albert.addTopic(physics);
         albert.addTopic(math);
-        albert.setHourlyFee(40);
+        albert.setHourlyFee(25);
 
         var isaac = addTeacher(UUID.fromString("f3b7d1b1-1b7b-4b7b-8b7b-1b7b7b7b7b7b"), new Teacher("Isaac", "Newton", "newton@jedi.edu", "isaac"));
         isaac.addLanguage("English");
-        isaac.setDescription("I am an English mathematician, physicist, and astronomer.");
+        isaac.setBiography("I am an English mathematician, physicist, and astronomer.");
         timeslot = LocalDateTime.now().plusDays(5).plusHours(3).withMinute(0).withSecond(0).withNano(0);
         isaac.addTimeslot(timeslot);
         timeslot = LocalDateTime.now().plusDays(4).plusHours(4).withMinute(0).withSecond(0).withNano(0);
@@ -179,7 +182,7 @@ public class ApplicationState {
         var martin = addTeacher(UUID.fromString("9d6d81bb-9274-421d-a454-0f227037a348"), new Teacher("Martin", "Luther", "luther@king.com", "martin"));
         martin.addTopic(theology);
         martin.addLanguage("German");
-        martin.setDescription("I am a German professor of theology and a seminal figure in the Protestant Reformation.");
+        martin.setBiography("I am a German professor of theology and a seminal figure in the Protestant Reformation.");
         timeslot = LocalDateTime.now().plusHours(1).withMinute(0).withSecond(0).withNano(0);
         martin.addTimeslot(timeslot);
         timeslot = LocalDateTime.now().plusDays(1).plusHours(1).withMinute(0).withSecond(0).withNano(0);

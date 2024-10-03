@@ -32,6 +32,4 @@ public class DebugResource {
         System.out.println("Received timestamps: " + timestamps);  // Debugging output
         return Response.ok("Received " + timestamps.size() + " timestamps.").build();
     }
-
-
 }
