@@ -157,8 +157,8 @@ public class ApplicationState {
         albert.addTimeslot(timeslot);
         timeslot = LocalDateTime.now().plusDays(2).withMinute(0).withSecond(0).withNano(0);
         albert.addTimeslot(timeslot);
-        albert.addTopic(physics);
-        albert.addTopic(math);
+        albert.addCourse(physics);
+        albert.addCourse(math);
         albert.setHourlyFee(25);
 
         var isaac = addTeacher(UUID.fromString("f3b7d1b1-1b7b-4b7b-8b7b-1b7b7b7b7b7b"), new Teacher("Isaac", "Newton", "newton@jedi.edu", "isaac"));
@@ -172,15 +172,15 @@ public class ApplicationState {
         isaac.addTimeslot(timeslot);
         physics = physics.clone();
         physics.setDescription("Studium materiae, energiae, et virium fundamentalium naturae.");
-        isaac.addTopic(physics);
+        isaac.addCourse(physics);
         math = math.clone();
         math.setDescription("Studium numerorum, quantitatis, structurae, spatii, mutationis.");
-        isaac.addTopic(math);
+        isaac.addCourse(math);
         isaac.rate(Teacher.maxRating);
         isaac.rate(Teacher.maxRating - 1);
 
         var martin = addTeacher(UUID.fromString("9d6d81bb-9274-421d-a454-0f227037a348"), new Teacher("Martin", "Luther", "luther@king.com", "martin"));
-        martin.addTopic(theology);
+        martin.addCourse(theology);
         martin.addLanguage("German");
         martin.setBiography("I am a German professor of theology and a seminal figure in the Protestant Reformation.");
         timeslot = LocalDateTime.now().plusHours(1).withMinute(0).withSecond(0).withNano(0);
