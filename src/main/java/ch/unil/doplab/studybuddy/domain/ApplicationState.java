@@ -12,13 +12,14 @@ public class ApplicationState {
 
     private Map<UUID, Student> students;
     private Map<UUID, Teacher> teachers;
-    private Map<String, User> users;
+    private Map<String, UUID> users;
     private Set<String> topics;
 
     @PostConstruct
     public void init() {
         students = new TreeMap<>();
         teachers = new TreeMap<>();
+        users = new TreeMap<>();
         topics = new TreeSet<>();
         populateApplicationState();
     }
@@ -31,8 +32,16 @@ public class ApplicationState {
     }
 
     public Student addStudent(UUID uuid, Student student) {
+        var username = student.getUsername();
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("Student must have a username");
+        }
+        if (student.getPassword() == null || student.getPassword().isBlank()) {
+            throw new IllegalArgumentException("Student must have a password");
+        }
         student.setUUID(uuid);
         students.put(uuid, student);
+        users.put(username, uuid);
         return student;
     }
 
@@ -44,8 +53,16 @@ public class ApplicationState {
     }
 
     public Teacher addTeacher(UUID uuid, Teacher teacher) {
+        var username = teacher.getUsername();
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("Teacher must have a username");
+        }
+        if (teacher.getPassword() == null || teacher.getPassword().isBlank()) {
+            throw new IllegalArgumentException("Teacher must have a password");
+        }
         teacher.setUUID(uuid);
         teachers.put(uuid, teacher);
+        users.put(username, uuid);
         return teacher;
     }
 
@@ -59,7 +76,13 @@ public class ApplicationState {
     }
 
     public boolean removeStudent(UUID uuid) {
-        return students.remove(uuid) != null;
+        var student = students.get(uuid);
+        if (student == null) {
+            return false;
+        }
+        users.remove(student.getUsername());
+        students.remove(uuid);
+        return true;
     }
 
     public Student getStudent(UUID uuid) {
@@ -88,7 +111,13 @@ public class ApplicationState {
     }
 
     public boolean removeTeacher(UUID uuid) {
-        return teachers.remove(uuid) != null;
+        var teacher = teachers.get(uuid);
+        if (teacher == null) {
+            return false;
+        }
+        users.remove(teacher.getUsername());
+        teachers.remove(uuid);
+        return true;
     }
 
     public Set<String> getTopics() {
@@ -145,7 +174,7 @@ public class ApplicationState {
         /*
          *  Create and register teachers
          */
-        var albert = addTeacher(UUID.fromString("2b7da5cb-a2ab-4077-be57-2b75bfc9f67b"), new Teacher("Albert", "Einstein", "einstein@emc2.org", "albert"));
+        var albert = addTeacher(UUID.fromString("2b7da5cb-a2ab-4077-be57-2b75bfc9f67b"), new Teacher("Albert", "Einstein", "einstein@emc2.org", "albert", Utils.hashPassword("1234")));
         albert.addLanguage("German");
         albert.addLanguage("English");
         albert.setBiography("I am a theoretical physicist working at the Swiss Patent Office in Bern.");
@@ -161,7 +190,7 @@ public class ApplicationState {
         albert.addCourse(math);
         albert.setHourlyFee(25);
 
-        var isaac = addTeacher(UUID.fromString("f3b7d1b1-1b7b-4b7b-8b7b-1b7b7b7b7b7b"), new Teacher("Isaac", "Newton", "newton@jedi.edu", "isaac"));
+        var isaac = addTeacher(UUID.fromString("f3b7d1b1-1b7b-4b7b-8b7b-1b7b7b7b7b7b"), new Teacher("Isaac", "Newton", "newton@jedi.edu", "isaac", Utils.hashPassword("1234")));
         isaac.addLanguage("English");
         isaac.setBiography("I am an English mathematician, physicist, and astronomer.");
         timeslot = LocalDateTime.now().plusDays(5).plusHours(3).withMinute(0).withSecond(0).withNano(0);
@@ -179,7 +208,7 @@ public class ApplicationState {
         isaac.rate(Teacher.maxRating);
         isaac.rate(Teacher.maxRating - 1);
 
-        var martin = addTeacher(UUID.fromString("9d6d81bb-9274-421d-a454-0f227037a348"), new Teacher("Martin", "Luther", "luther@king.com", "martin"));
+        var martin = addTeacher(UUID.fromString("9d6d81bb-9274-421d-a454-0f227037a348"), new Teacher("Martin", "Luther", "luther@king.com", "martin", Utils.hashPassword("1234")));
         martin.addCourse(theology);
         martin.addLanguage("German");
         martin.setBiography("I am a German professor of theology and a seminal figure in the Protestant Reformation.");
@@ -198,20 +227,20 @@ public class ApplicationState {
         /*
         /*  Create and register students
          */
-        var paul = addStudent(UUID.fromString("b8d0c81d-e1c6-4708-bd02-d218a23e4805"), new Student("Paul", "Dirac", "dirac@quantum.org", "paul"));
+        var paul = addStudent(UUID.fromString("b8d0c81d-e1c6-4708-bd02-d218a23e4805"), new Student("Paul", "Dirac", "dirac@quantum.org", "paul", Utils.hashPassword("1234")));
         paul.addLanguage("English");
         paul.addLanguage("French");
         paul.addInterest(physics);
         paul.addInterest(theology);
 
-        var robert = addStudent(UUID.fromString("0ab2ec68-c574-4d81-bed0-a93c31fab1c0"), new Student("Robert", "Oppenheimer", "oppenheimer@atomic.com", "robert"));
+        var robert = addStudent(UUID.fromString("0ab2ec68-c574-4d81-bed0-a93c31fab1c0"), new Student("Robert", "Oppenheimer", "oppenheimer@atomic.com", "robert", Utils.hashPassword("1234")));
         robert.addLanguage("English");
         robert.addLanguage("French");
         robert.addLanguage("German");
         robert.addInterest(physics);
         robert.addInterest(math);
 
-        var richard = addStudent(UUID.fromString("5d53a98b-53a8-4580-adc1-28067b37582a"), new Student("Richard", "Feynman", "feynman@diagrams.net", "richard"));
+        var richard = addStudent(UUID.fromString("5d53a98b-53a8-4580-adc1-28067b37582a"), new Student("Richard", "Feynman", "feynman@diagrams.net", "richard", Utils.hashPassword("1234")));
         richard.addLanguage("English");
         richard.addInterest(physics);
         richard.addInterest(math);
