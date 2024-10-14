@@ -14,5 +14,4 @@ public class DebugRequest {
     public void setTimeslots(List<LocalDateTime> timeslots) {
         this.timeslots = timeslots;
     }
-
 }

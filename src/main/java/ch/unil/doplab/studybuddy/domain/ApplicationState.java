@@ -36,6 +36,9 @@ public class ApplicationState {
         if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("Student must have a username");
         }
+        if (users.containsKey(username)) {
+            throw new IllegalArgumentException("Student '" + username + "' already exists");
+        }
         if (student.getPassword() == null || student.getPassword().isBlank()) {
             throw new IllegalArgumentException("Student must have a password");
         }
@@ -57,6 +60,9 @@ public class ApplicationState {
         if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("Teacher must have a username");
         }
+        if (users.containsKey(username)) {
+            throw new IllegalArgumentException("Teacher '" + username + "' already exists");
+        }
         if (teacher.getPassword() == null || teacher.getPassword().isBlank()) {
             throw new IllegalArgumentException("Teacher must have a password");
         }
@@ -70,6 +76,12 @@ public class ApplicationState {
         var theStudent = students.get(uuid);
         if (theStudent == null) {
             return false;
+        }
+        var username = student.getUsername();
+        if (!theStudent.getUsername().equals(username) &&
+                users.get(username) != null &&
+                !users.get(username).equals(uuid)) {
+            throw new IllegalArgumentException("A student with username '" + student.getUsername() + "' already exists");
         }
         theStudent.replaceWith(student);
         return true;
@@ -105,6 +117,12 @@ public class ApplicationState {
         var theTeacher = teachers.get(uuid);
         if (theTeacher == null) {
             return false;
+        }
+        var username = teacher.getUsername();
+        if (!theTeacher.getUsername().equals(username) &&
+                users.get(username) != null &&
+                !users.get(username).equals(uuid)) {
+            throw new IllegalArgumentException("A teacher with username '" + teacher.getUsername() + "' already exists");
         }
         theTeacher.replaceWith(teacher);
         return true;
