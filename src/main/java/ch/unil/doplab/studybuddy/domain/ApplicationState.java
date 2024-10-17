@@ -2,6 +2,7 @@ package ch.unil.doplab.studybuddy.domain;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -101,11 +102,11 @@ public class ApplicationState {
         return students.get(uuid);
     }
 
-    public Map<UUID,Student> getAllStudents() {
+    public Map<UUID, Student> getAllStudents() {
         return students;
     }
 
-    public Map<UUID,Teacher> getAllTeachers() {
+    public Map<UUID, Teacher> getAllTeachers() {
         return teachers;
     }
 
@@ -140,6 +141,26 @@ public class ApplicationState {
 
     public Set<String> getTopics() {
         return topics;
+    }
+
+    public UUID authenticate(String username, String password, boolean isTeacher) {
+        var uuid = users.get(username);
+        if (uuid == null) {
+            return null;
+        }
+        User user;
+        if (isTeacher) {
+            user = teachers.get(uuid);
+        } else {
+            user = students.get(uuid);
+        }
+        if (user == null) {
+            return null;
+        }
+        if (!Utils.checkPassword(password, user.getPassword())) {
+            return null;
+        }
+        return uuid;
     }
 
     private void populateTopics() {

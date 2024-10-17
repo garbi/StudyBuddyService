@@ -77,4 +77,18 @@ public class ServiceResource {
         teacher.rateLesson(lesson.getTimeslot(), rating);
         student.rateLesson(lesson.getTimeslot(), rating);
     }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/authenticate/{username}/{password}/{role}")
+    public UUID authenticate(@PathParam("username") String username, @PathParam("password") String password, @PathParam("role") String role) {
+        if (role.equals("teacher")) {
+            return state.authenticate(username, password, true);
+        }
+        if (role.equals("student")) {
+            return state.authenticate(username, password, false);
+        }
+        return null;
+    }
 }
