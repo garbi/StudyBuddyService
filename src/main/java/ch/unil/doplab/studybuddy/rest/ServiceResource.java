@@ -83,10 +83,10 @@ public class ServiceResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/authenticate/{username}/{password}/{role}")
     public UUID authenticate(@PathParam("username") String username, @PathParam("password") String password, @PathParam("role") String role) {
-        if (role.equals("teacher")) {
+        if (role.equals(Utils.teacherRole)) {
             return state.authenticate(username, password, true);
         }
-        if (role.equals("student")) {
+        if (role.equals(Utils.studentRole)) {
             return state.authenticate(username, password, false);
         }
         return null;

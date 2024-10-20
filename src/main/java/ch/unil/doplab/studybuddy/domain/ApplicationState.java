@@ -38,7 +38,7 @@ public class ApplicationState {
             throw new IllegalArgumentException("Student must have a username");
         }
         if (users.containsKey(username)) {
-            throw new IllegalArgumentException("Student '" + username + "' already exists");
+            throw new IllegalArgumentException("A user named '" + username + "' already exists");
         }
         if (student.getPassword() == null || student.getPassword().isBlank()) {
             throw new IllegalArgumentException("Student must have a password");
@@ -62,7 +62,7 @@ public class ApplicationState {
             throw new IllegalArgumentException("Teacher must have a username");
         }
         if (users.containsKey(username)) {
-            throw new IllegalArgumentException("Teacher '" + username + "' already exists");
+            throw new IllegalArgumentException("A user named '" + username + "' already exists");
         }
         if (teacher.getPassword() == null || teacher.getPassword().isBlank()) {
             throw new IllegalArgumentException("Teacher must have a password");
@@ -82,7 +82,7 @@ public class ApplicationState {
         if (!theStudent.getUsername().equals(username) &&
                 users.get(username) != null &&
                 !users.get(username).equals(uuid)) {
-            throw new IllegalArgumentException("A student with username '" + student.getUsername() + "' already exists");
+            throw new IllegalArgumentException("A user named '" + student.getUsername() + "' already exists");
         }
         theStudent.replaceWith(student);
         return true;
@@ -123,7 +123,7 @@ public class ApplicationState {
         if (!theTeacher.getUsername().equals(username) &&
                 users.get(username) != null &&
                 !users.get(username).equals(uuid)) {
-            throw new IllegalArgumentException("A teacher with username '" + teacher.getUsername() + "' already exists");
+            throw new IllegalArgumentException("A user named '" + teacher.getUsername() + "' already exists");
         }
         theTeacher.replaceWith(teacher);
         return true;
