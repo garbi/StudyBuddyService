@@ -2,10 +2,7 @@ package ch.unil.doplab.studybuddy.domain;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
 
 @ApplicationScoped
@@ -82,7 +79,7 @@ public class ApplicationState {
         if (!theStudent.getUsername().equals(username) &&
                 users.get(username) != null &&
                 !users.get(username).equals(uuid)) {
-            throw new IllegalArgumentException("A user named '" + student.getUsername() + "' already exists");
+            throw new IllegalArgumentException("A user named '" + username + "' already exists");
         }
         theStudent.replaceWith(student);
         return true;
@@ -123,7 +120,7 @@ public class ApplicationState {
         if (!theTeacher.getUsername().equals(username) &&
                 users.get(username) != null &&
                 !users.get(username).equals(uuid)) {
-            throw new IllegalArgumentException("A user named '" + teacher.getUsername() + "' already exists");
+            throw new IllegalArgumentException("A user named '" + username + "' already exists");
         }
         theTeacher.replaceWith(teacher);
         return true;

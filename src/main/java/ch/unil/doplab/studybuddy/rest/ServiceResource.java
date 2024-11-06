@@ -1,7 +1,6 @@
 package ch.unil.doplab.studybuddy.rest;
 
 import ch.unil.doplab.studybuddy.domain.*;
-import jakarta.ejb.Local;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
