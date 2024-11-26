@@ -1,16 +1,22 @@
 package ch.unil.doplab.studybuddy.rest;
 
+import ch.unil.doplab.studybuddy.domain.ApplicationState;
+import ch.unil.doplab.studybuddy.domain.Student;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.EventListener;
 import java.util.List;
 
 //TODO: Eventually, this class should be removed, as it was just for testing purposes.
 @Path("/debug")
 public class DebugResource {
+    @Inject
+    private ApplicationState state;
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
@@ -21,6 +27,14 @@ public class DebugResource {
         } else {
             return Response.notAcceptable(Collections.emptyList()).build();
         }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/students")
+    public List<Student> getStudents() {
+        var allStudents = state.findAll();
+        return allStudents;
     }
 
     @POST

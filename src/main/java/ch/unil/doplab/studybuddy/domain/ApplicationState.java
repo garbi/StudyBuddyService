@@ -2,8 +2,14 @@ package ch.unil.doplab.studybuddy.domain;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.*;
+
+import ch.unil.doplab.studybuddy.domain.Student;
 
 @ApplicationScoped
 public class ApplicationState {
@@ -13,6 +19,9 @@ public class ApplicationState {
     private Map<String, UUID> users;
     private Set<String> topics;
 
+    @PersistenceContext
+    private EntityManager em;
+
     @PostConstruct
     public void init() {
         students = new TreeMap<>();
@@ -20,6 +29,49 @@ public class ApplicationState {
         users = new TreeMap<>();
         topics = new TreeSet<>();
         populateApplicationState();
+    }
+
+    private void clearObjects() {
+        students.clear();
+        teachers.clear();
+        users.clear();
+        topics.clear();
+    }
+
+    private void clearTables() {
+        clearTable("Topic");
+        clearTable("Student");
+    }
+
+    public List<Student> findAll() {
+        return em.createQuery("SELECT c FROM Student c", Student.class).getResultList();
+    }
+
+    @Transactional
+    public void clearDB() {
+        clearObjects();
+        clearTables();
+    }
+
+    @Transactional
+    public void populateDB() {
+        clearObjects();
+        populateApplicationState();
+        for (var student : students.values()) {
+            em.persist(student);
+        }
+    }
+
+    @Transactional
+    public void resetDB() {
+        clearDB();
+        populateDB();
+    }
+
+    private void clearTable(String entityName) {
+        var query = em.createQuery("DELETE FROM " + entityName);
+        var result = query.executeUpdate();
+        System.out.println("Deleted " + result + " rows from " + entityName);
     }
 
     public Student addStudent(Student student) {
@@ -96,6 +148,8 @@ public class ApplicationState {
     }
 
     public Student getStudent(UUID uuid) {
+//        var theStudent = em.find(Student.class, uuid);
+//        System.out.println("Student's interests: " + theStudent.getInterests());
         return students.get(uuid);
     }
 

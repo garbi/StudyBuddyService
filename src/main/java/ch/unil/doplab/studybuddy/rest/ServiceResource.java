@@ -16,10 +16,26 @@ public class ServiceResource {
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("/reset")
-    public Response reset() {
-        state.init();
-        return Response.ok("StudyBuddy Service was reset at " + LocalDateTime.now()).build();
+    @Path("/populateDB")
+    public Response populateDB() {
+        state.populateDB();
+        return Response.ok("StudyBuddy database was populated at " + LocalDateTime.now()).build();
+    }
+
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("/clearDB")
+    public Response clearDB() {
+        state.clearDB();
+        return Response.ok("StudyBuddy database was cleared at " + LocalDateTime.now()).build();
+    }
+
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("/resetDB")
+    public Response resetDB() {
+        state.resetDB();
+        return Response.ok("StudyBuddy database was reset at " + LocalDateTime.now()).build();
     }
 
     @GET
