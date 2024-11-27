@@ -148,8 +148,8 @@ public class ApplicationState {
     }
 
     public Student getStudent(UUID uuid) {
-//        var theStudent = em.find(Student.class, uuid);
-//        System.out.println("Student's interests: " + theStudent.getInterests());
+        var theStudent = em.find(Student.class, uuid);
+        System.out.println("Student's interests: " + theStudent.getInterests());
         return students.get(uuid);
     }
 
