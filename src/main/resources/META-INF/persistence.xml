@@ -5,12 +5,14 @@
              version="3.0">
     <persistence-unit name="StudyBuddyPU" transaction-type="JTA">
         <jta-data-source>jdbc/StudyBuddy</jta-data-source>
+        <class>ch.unil.doplab.studybuddy.domain.User</class>
+        <class>ch.unil.doplab.studybuddy.domain.Teacher</class>
         <class>ch.unil.doplab.studybuddy.domain.Student</class>
         <class>ch.unil.doplab.studybuddy.domain.Topic</class>
         <class>ch.unil.doplab.studybuddy.domain.Affinity</class>
         <class>ch.unil.doplab.studybuddy.domain.Lesson</class>
         <properties>
-            <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <property name="jakarta.persistence.schema-generation.database.action" value="create"/>
             <property name="eclipselink.logging.level" value="FINEST"/>
         </properties>
     </persistence-unit>

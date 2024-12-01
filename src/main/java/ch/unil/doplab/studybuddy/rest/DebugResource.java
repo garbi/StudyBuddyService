@@ -2,6 +2,7 @@ package ch.unil.doplab.studybuddy.rest;
 
 import ch.unil.doplab.studybuddy.domain.ApplicationState;
 import ch.unil.doplab.studybuddy.domain.Student;
+import ch.unil.doplab.studybuddy.domain.Teacher;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -9,7 +10,6 @@ import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.EventListener;
 import java.util.List;
 
 //TODO: Eventually, this class should be removed, as it was just for testing purposes.
@@ -33,8 +33,16 @@ public class DebugResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/students")
     public List<Student> getStudents() {
-        var allStudents = state.findAll();
-        return allStudents;
+        var students = state.findAllStudents();
+        return students;
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/teachers")
+    public List<Teacher> getTeachers() {
+        var teachers = state.findAllTeachers();
+        return teachers;
     }
 
     @POST

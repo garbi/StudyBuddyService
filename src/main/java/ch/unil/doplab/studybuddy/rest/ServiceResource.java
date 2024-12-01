@@ -26,6 +26,11 @@ public class ServiceResource {
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/clearDB")
     public Response clearDB() {
+        try {
+            state.clearDB();
+        } catch (Exception e) {
+            return Response.serverError().entity(e.getMessage()).build();
+        }
         state.clearDB();
         return Response.ok("StudyBuddy database was cleared at " + LocalDateTime.now()).build();
     }
@@ -65,9 +70,7 @@ public class ServiceResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/bookLesson")
     public Lesson bookLesson(Lesson lesson) {
-        var student = state.getStudent(lesson.getStudentID());
-        var teacher = state.getTeacher(lesson.getTeacherID());
-        lesson.book(teacher, student);
+        state.bookLesson(lesson);
         return lesson;
     }
 
@@ -76,9 +79,7 @@ public class ServiceResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/cancelLesson")
     public void cancelLesson(Lesson lesson) {
-        var student = state.getStudent(lesson.getStudentID());
-        var teacher = state.getTeacher(lesson.getTeacherID());
-        lesson.cancel(teacher, student);
+        state.cancelLesson(lesson);
     }
 
     @PUT
@@ -86,11 +87,7 @@ public class ServiceResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/rateLesson/{rating}")
     public void rateLesson(Lesson lesson, @PathParam("rating") String ratingName) {
-        var rating = Rating.valueOf(ratingName);
-        var student = state.getStudent(lesson.getStudentID());
-        var teacher = state.getTeacher(lesson.getTeacherID());
-        teacher.rateLesson(lesson.getTimeslot(), rating);
-        student.rateLesson(lesson.getTimeslot(), rating);
+        state.rateLesson(lesson, Rating.valueOf(ratingName));
     }
 
     @GET

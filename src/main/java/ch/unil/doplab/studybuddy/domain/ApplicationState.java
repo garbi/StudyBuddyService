@@ -9,8 +9,6 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import ch.unil.doplab.studybuddy.domain.Student;
-
 @ApplicationScoped
 public class ApplicationState {
 
@@ -28,7 +26,19 @@ public class ApplicationState {
         teachers = new TreeMap<>();
         users = new TreeMap<>();
         topics = new TreeSet<>();
-        populateApplicationState();
+        populateTopics();
+
+        var allTeachers = findAllTeachers();
+        for (var teacher : allTeachers) {
+            teachers.put(teacher.getUUID(), teacher);
+            users.put(teacher.getUsername(), teacher.getUUID());
+        }
+
+        var allStudents = findAllStudents();
+        for (var student : allStudents) {
+            students.put(student.getUUID(), student);
+            users.put(student.getUsername(), student.getUUID());
+        }
     }
 
     private void clearObjects() {
@@ -39,18 +49,39 @@ public class ApplicationState {
     }
 
     private void clearTables() {
-        clearTable("Topic");
-        clearTable("Student");
+        // Disable foreign key checks
+        em.createNativeQuery("SET FOREIGN_KEY_CHECKS = 0").executeUpdate();
+
+        // Get all table names in the studybuddy schema
+        List<String> tables = (List<String>) em
+                .createNativeQuery("SELECT table_name FROM information_schema.tables WHERE table_schema = 'studybuddy'")
+                .getResultList();
+
+        // Avoid removing the sequence table
+        tables.remove("SEQUENCE");
+
+        // Truncate each table
+        for (String table : tables) {
+            em.createNativeQuery("TRUNCATE TABLE " + table).executeUpdate();
+        }
+
+        // Re-enable foreign key checks
+        em.createNativeQuery("SET FOREIGN_KEY_CHECKS = 1").executeUpdate();
     }
 
-    public List<Student> findAll() {
+    public List<Student> findAllStudents() {
         return em.createQuery("SELECT c FROM Student c", Student.class).getResultList();
+    }
+
+    public List<Teacher> findAllTeachers() {
+        return em.createQuery("SELECT c FROM Teacher c", Teacher.class).getResultList();
     }
 
     @Transactional
     public void clearDB() {
         clearObjects();
         clearTables();
+        populateTopics();
     }
 
     @Transactional
@@ -60,6 +91,52 @@ public class ApplicationState {
         for (var student : students.values()) {
             em.persist(student);
         }
+        for (var teacher : teachers.values()) {
+            em.persist(teacher);
+        }
+    }
+
+    private void testTeacherDB() {
+        LocalDateTime timeslot;
+        var physics = new Topic(
+                "Physics",
+                "The study of matter, energy, and the fundamental forces of nature.",
+                EnumSet.allOf(Level.class));
+
+        var math = new Topic(
+                "Mathematics",
+                "The study of numbers, quantity, structure, space, and change.",
+                EnumSet.of(Level.Intermediate, Level.Advanced));
+
+        var albert = addTeacher(UUID.fromString("2b7da5cb-a2ab-4077-be57-2b75bfc9f67b"), new Teacher("Albert", "Einstein", "einstein@emc2.org", "albert", Utils.hashPassword("1234")));
+        albert.addLanguage("German");
+        albert.addLanguage("English");
+        albert.setBiography("I am a theoretical physicist working at the Swiss Patent Office in Bern.");
+        timeslot = LocalDateTime.now().minusDays(1).plusHours(1).withMinute(0).withSecond(0).withNano(0);
+        albert.addTimeslot(timeslot);
+        timeslot = timeslot.plusHours(1);
+        albert.addTimeslot(timeslot);
+        timeslot = LocalDateTime.now().plusDays(1).plusHours(3).withMinute(0).withSecond(0).withNano(0);
+        albert.addTimeslot(timeslot);
+        timeslot = LocalDateTime.now().plusDays(2).withMinute(0).withSecond(0).withNano(0);
+        albert.addTimeslot(timeslot);
+        albert.addCourse(physics);
+        albert.addCourse(math);
+        albert.setHourlyFee(25);
+        em.persist(albert);
+    }
+
+    private void testStudentDB() {
+        LocalDateTime timeslot;
+        var physics = new Topic("Physics", null, Level.Advanced);
+        var math = new Topic("Mathematics", null, Level.Intermediate);
+        var theology = new Topic("Theology", null, Level.Beginner);
+        var paul = addStudent(UUID.fromString("b8d0c81d-e1c6-4708-bd02-d218a23e4805"), new Student("Paul", "Dirac", "dirac@quantum.org", "paul", Utils.hashPassword("1234")));
+        paul.addLanguage("English");
+        paul.addLanguage("French");
+        paul.addInterest(physics);
+        paul.addInterest(theology);
+        em.persist(paul);
     }
 
     @Transactional
@@ -68,12 +145,35 @@ public class ApplicationState {
         populateDB();
     }
 
-    private void clearTable(String entityName) {
-        var query = em.createQuery("DELETE FROM " + entityName);
-        var result = query.executeUpdate();
-        System.out.println("Deleted " + result + " rows from " + entityName);
+    @Transactional
+    public void rateLesson(Lesson lesson, Rating rating) {
+        var student = getStudent(lesson.getStudentID());
+        var teacher = getTeacher(lesson.getTeacherID());
+        teacher.rateLesson(lesson.getTimeslot(), rating);
+        student.rateLesson(lesson.getTimeslot(), rating);
+        em.merge(teacher);
+        em.merge(student);
     }
 
+    @Transactional
+    public void bookLesson(Lesson lesson) {
+        var student = getStudent(lesson.getStudentID());
+        var teacher = getTeacher(lesson.getTeacherID());
+        lesson.book(teacher, student);
+        em.merge(teacher);
+        em.merge(student);
+    }
+
+    @Transactional
+    public void cancelLesson(Lesson lesson) {
+        var student = getStudent(lesson.getStudentID());
+        var teacher = getTeacher(lesson.getTeacherID());
+        lesson.cancel(teacher, student);
+        em.merge(teacher);
+        em.merge(student);
+    }
+
+    @Transactional
     public Student addStudent(Student student) {
         if (student.getUUID() != null) {
             return addStudent(student.getUUID(), student);
@@ -81,6 +181,7 @@ public class ApplicationState {
         return addStudent(UUID.randomUUID(), student);
     }
 
+    @Transactional
     public Student addStudent(UUID uuid, Student student) {
         var username = student.getUsername();
         if (username == null || username.isBlank()) {
@@ -95,9 +196,12 @@ public class ApplicationState {
         student.setUUID(uuid);
         students.put(uuid, student);
         users.put(username, uuid);
+        em.persist(student);
+
         return student;
     }
 
+    @Transactional
     public Teacher addTeacher(Teacher teacher) {
         if (teacher.getUUID() != null) {
             return addTeacher(teacher.getUUID(), teacher);
@@ -105,6 +209,7 @@ public class ApplicationState {
         return addTeacher(UUID.randomUUID(), teacher);
     }
 
+    @Transactional
     public Teacher addTeacher(UUID uuid, Teacher teacher) {
         var username = teacher.getUsername();
         if (username == null || username.isBlank()) {
@@ -119,21 +224,28 @@ public class ApplicationState {
         teacher.setUUID(uuid);
         teachers.put(uuid, teacher);
         users.put(username, uuid);
+        em.persist(teacher);
+
         return teacher;
     }
 
+    @Transactional
     public boolean setStudent(UUID uuid, Student student) {
         var theStudent = students.get(uuid);
         if (theStudent == null) {
             return false;
         }
         var username = student.getUsername();
-        if (!theStudent.getUsername().equals(username) &&
-                users.get(username) != null &&
-                !users.get(username).equals(uuid)) {
-            throw new IllegalArgumentException("A user named '" + username + "' already exists");
+        if (!theStudent.getUsername().equals(username)) {
+            if (users.get(username) != null && !users.get(username).equals(uuid)) {
+                throw new IllegalArgumentException("A user named '" + username + "' already exists");
+            } else {
+                users.remove(theStudent.getUsername());
+                users.put(username, uuid);
+            }
         }
         theStudent.replaceWith(student);
+        em.merge(theStudent);
         return true;
     }
 
@@ -148,8 +260,6 @@ public class ApplicationState {
     }
 
     public Student getStudent(UUID uuid) {
-        var theStudent = em.find(Student.class, uuid);
-        System.out.println("Student's interests: " + theStudent.getInterests());
         return students.get(uuid);
     }
 
@@ -165,18 +275,24 @@ public class ApplicationState {
         return teachers.get(uuid);
     }
 
+    @Transactional
     public boolean setTeacher(UUID uuid, Teacher teacher) {
         var theTeacher = teachers.get(uuid);
         if (theTeacher == null) {
             return false;
         }
         var username = teacher.getUsername();
-        if (!theTeacher.getUsername().equals(username) &&
-                users.get(username) != null &&
-                !users.get(username).equals(uuid)) {
-            throw new IllegalArgumentException("A user named '" + username + "' already exists");
+        if (!theTeacher.getUsername().equals(username)) {
+            if (users.get(username) != null && !users.get(username).equals(uuid)) {
+                throw new IllegalArgumentException("A user named '" + username + "' already exists");
+            } else {
+                users.remove(theTeacher.getUsername());
+                users.put(username, uuid);
+            }
         }
         theTeacher.replaceWith(teacher);
+        em.merge(theTeacher);
+
         return true;
     }
 
@@ -215,6 +331,7 @@ public class ApplicationState {
     }
 
     private void populateTopics() {
+        topics.clear();
         topics.add("Anthropology");
         topics.add("Archaeology");
         topics.add("Astronomy");
