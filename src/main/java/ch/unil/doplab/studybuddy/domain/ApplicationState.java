@@ -28,16 +28,16 @@ public class ApplicationState {
         topics = new TreeSet<>();
         populateTopics();
 
-        var allTeachers = findAllTeachers();
-        for (var teacher : allTeachers) {
-            teachers.put(teacher.getUUID(), teacher);
-            users.put(teacher.getUsername(), teacher.getUUID());
-        }
-
         var allStudents = findAllStudents();
         for (var student : allStudents) {
             students.put(student.getUUID(), student);
             users.put(student.getUsername(), student.getUUID());
+        }
+
+        var allTeachers = findAllTeachers();
+        for (var teacher : allTeachers) {
+            teachers.put(teacher.getUUID(), teacher);
+            users.put(teacher.getUsername(), teacher.getUUID());
         }
     }
 
@@ -90,6 +90,7 @@ public class ApplicationState {
         populateApplicationState();
         for (var student : students.values()) {
             em.persist(student);
+            System.out.println("Persisted student: " + student);
         }
         for (var teacher : teachers.values()) {
             em.persist(teacher);
@@ -159,9 +160,11 @@ public class ApplicationState {
     public void bookLesson(Lesson lesson) {
         var student = getStudent(lesson.getStudentID());
         var teacher = getTeacher(lesson.getTeacherID());
+        em.persist(lesson);
         lesson.book(teacher, student);
         em.merge(teacher);
         em.merge(student);
+        System.out.println("Booked lesson: " + lesson);
     }
 
     @Transactional
@@ -171,6 +174,8 @@ public class ApplicationState {
         lesson.cancel(teacher, student);
         em.merge(teacher);
         em.merge(student);
+        lesson = em.merge(lesson);
+        em.remove(lesson);
     }
 
     @Transactional
