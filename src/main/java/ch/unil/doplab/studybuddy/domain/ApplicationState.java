@@ -254,11 +254,17 @@ public class ApplicationState {
         return true;
     }
 
+    @Transactional
     public boolean removeStudent(UUID uuid) {
         var student = students.get(uuid);
         if (student == null) {
             return false;
         }
+        student = em.merge(student);
+        for (var lesson : student.getLessons()) {
+            cancelLesson(lesson);
+        }
+        em.remove(student);
         users.remove(student.getUsername());
         students.remove(uuid);
         return true;
@@ -301,11 +307,17 @@ public class ApplicationState {
         return true;
     }
 
+    @Transactional
     public boolean removeTeacher(UUID uuid) {
         var teacher = teachers.get(uuid);
         if (teacher == null) {
             return false;
         }
+        teacher = em.merge(teacher);
+        for (var lesson : teacher.getLessons()) {
+            cancelLesson(lesson);
+        }
+        em.remove(teacher);
         users.remove(teacher.getUsername());
         teachers.remove(uuid);
         return true;
