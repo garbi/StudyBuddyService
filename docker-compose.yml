@@ -1,0 +1,32 @@
+services:
+  db:
+    container_name: database
+    image: mysql:8.0.43
+    env_file: .env
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  service:
+    container_name: StudyBuddyService
+    build:
+      context: ..
+      dockerfile: StudyBuddyService/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    ports:
+      - "8080:8080"
+      - "4848:4848"
+      - "5005:5005"
+
+
+volumes:
+  db_data:

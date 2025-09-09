@@ -1,0 +1,9 @@
+# Attached debug
+#set configs.config.server-config.java-config.debug-enabled=true
+# set configs.config.server-config.java-config.debug-options="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=0.0.0.0:5005"
+# create-jvm-options --target=server-config -- "-Xlog:jdwp=trace"
+
+
+#Listen debug
+#set configs.config.server-config.java-config.debug-enabled=true
+#set configs.config.server-config.java-config.debug-options="-agentlib:jdwp=transport=dt_socket,server=n,suspend=n,address=host.docker.internal:5005"

@@ -1,0 +1,10 @@
+# (facultatif) Nettoyer si ça existe déjà — ignore les erreurs si absent
+delete-jdbc-resource jdbc/StudyBuddy
+delete-jdbc-connection-pool StudyBuddyPool
+
+# Créer le pool en UNE seule ligne
+create-jdbc-connection-pool --restype javax.sql.DataSource --datasourceclassname com.mysql.cj.jdbc.MysqlDataSource --isconnectvalidatereq=true --validationmethod=auto-commit --property "user=${ENV=DB_USER}:password=${ENV=DB_PASSWORD}:DatabaseName=${ENV=DB_NAME}:ServerName=${ENV=DB_HOST}:PortNumber=${ENV=DB_PORT}:useSSL=false:allowPublicKeyRetrieval=true" StudyBuddyPool
+
+# Créer la ressource JNDI attendue par ton persistence.xml
+create-jdbc-resource --connectionpoolid StudyBuddyPool jdbc/StudyBuddy
+
