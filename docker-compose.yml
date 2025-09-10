@@ -13,20 +13,23 @@ services:
       timeout: 5s
       retries: 10
 
-  service:
-    container_name: StudyBuddyService
-    build:
-      context: ..
-      dockerfile: StudyBuddyService/Dockerfile
-    depends_on:
-      db:
-        condition: service_healthy
-    env_file: .env
-    ports:
-      - "8080:8080"
-      - "4848:4848"
-      - "5005:5005"
 
+  payara:
+    container_name: payara
+    image: payara/server-full:6.2025.8-jdk17
+    env_file: .env
+    environment:
+      PAYARA_ARGS: "--debug=true"  # JDWP actif
+      ADMIN_PASSWORD: "admin"                    # mot de passe admin (adaptable)
+      SECURE_ADMIN: "false"
+    ports:
+      - "8080:8080"   # applis
+      - "4848:4848"   # admin
+      - "9009:9009"   # debug
+    #if you need to rebuild the server config, make sure to delete the volumes with docker compose down -v
+    volumes:
+      - ./docker/post-boot-commands.asadmin:/opt/payara/config/post-boot-commands.asadmin:ro
+      - ./docker/pre-boot-commands.asadmin:/opt/payara/config/pre-boot-commands.asadmin:ro
 
 volumes:
   db_data:

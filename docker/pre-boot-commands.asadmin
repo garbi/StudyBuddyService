@@ -1,7 +1,8 @@
 # Attached debug
-#set configs.config.server-config.java-config.debug-enabled=true
-# set configs.config.server-config.java-config.debug-options="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=0.0.0.0:5005"
-# create-jvm-options --target=server-config -- "-Xlog:jdwp=trace"
+set configs.config.server-config.java-config.debug-enabled=true
+#set configs.config.server-config.java-config.debug-options="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:9009"
+create-jvm-options --target=server-config -- "-Xlog:jdwp=trace"
+create-jvm-options --target=server-config -- "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:9009"
 
 
 #Listen debug
