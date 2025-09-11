@@ -1,4 +1,5 @@
 services:
+  #MySQL image
   db:
     container_name: database
     image: mysql:8.0.43
@@ -13,6 +14,24 @@ services:
       timeout: 5s
       retries: 10
 
+  #Copying payara sdk application server to payara-sdk folder
+  payara-sdk-export:
+    container_name: payara-sdk-exporter
+    image: payara/server-full:6.2025.8-jdk17
+    user: "0:0"
+    entrypoint: [ "/bin/sh","-lc" ]
+    command:
+    - >
+      if [ -x /sdk/appserver/bin/asadmin ]; then
+            echo "[sdk export] appserver already exists, skip"; exit 0;
+      fi;
+      echo "[sdk export] copying /opt/payara/appserver -> /sdk ...";
+      cp -a /opt/payara/appserver /sdk/ && echo "[export] done"
+    volumes:
+      - ./payara-sdk:/sdk:rw
+    restart: "no"
+
+  #Payara server
   payara:
     container_name: payara
     build:
@@ -26,32 +45,19 @@ services:
       SECURE_ADMIN: "true"
       ADMIN_USER: "${ADMIN_USER}"
       ADMIN_PASSWORD: "${ADMIN_PASSWORD}"
-      # Dossier dans le conteneur où exporter le SDK (monté ci-dessous)
-      EXPORT_SDK_DIR: "/sdk"
-      JAVA_TOOL_OPTIONS: ""
-      JDK_JAVA_OPTIONS: ""
-      HOST_PATH: ${PAYARA_DOCKER_HOST_PATH}
-      CONTAINER_PATH: "/workspace"
     ports:
-      - "8080:8080"   # apps
-      - "4848:4848"   # admin (HTTPS si SECURE_ADMIN=true)
-      - "9009:9009"   # debug JDWP
-    # si vous devez reconstruire la config : docker compose down -v
+      - "8080:8080"   #apps
+      - "4848:4848"   #admin
+      - "${DEBUG_PORT}:${DEBUG_PORT}"   #debug JDWP
     volumes:
-      # (1) Scripts asadmin (si tu préfères les monter plutôt que les copier dans l'image)
+      #Directly mounting settings to the server config -> needs a restart
       - ./docker/post-boot-commands.asadmin:/opt/payara/config/post-boot-commands.asadmin:ro
       - ./docker/pre-boot-commands.asadmin:/opt/payara/config/pre-boot-commands.asadmin:ro
-
-      # (2) Autodeploy d'un .war (facultatif)
+      #Can drop .war in the folder for auto deploy but not necessary
       - ./deploy:/opt/payara/appserver/glassfish/domains/domain1/autodeploy
-
-      # (3) Volume pour exporter le SDK Payara (IntelliJ "Application server")
-      #     -> après le démarrage, tu auras ./payara-sdk/appserver côté hôte
-      - ./payara-sdk:/sdk
-
-      # (4) Mapping "Docker Volume" IntelliJ (exploded artifact) : HOST_PATH ABSOLU requis
-      #     Renseigne PAYARA_DOCKER_HOST_PATH dans .env (ex: D:/projets/app/target/exploded)
-      - ${PAYARA_DOCKER_HOST_PATH}:/workspace
+      #Workspace volumes
+      - ${SERVICE_HOST_PATH}:/workspace-service
+      - ${WEBAPP_HOST_PATH}:/workspace-webapp
 
 volumes:
   db_data:
