@@ -19,6 +19,9 @@ services:
       context: .
       dockerfile: ./Dockerfile
     env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
       SECURE_ADMIN: "true"
       ADMIN_USER: "${ADMIN_USER}"
@@ -36,8 +39,8 @@ services:
     # si vous devez reconstruire la config : docker compose down -v
     volumes:
       # (1) Scripts asadmin (si tu préfères les monter plutôt que les copier dans l'image)
-      #- ./docker/post-boot-commands.asadmin:/opt/payara/config/post-boot-commands.asadmin:ro
-      #- ./docker/pre-boot-commands.asadmin:/opt/payara/config/pre-boot-commands.asadmin:ro
+      - ./docker/post-boot-commands.asadmin:/opt/payara/config/post-boot-commands.asadmin:ro
+      - ./docker/pre-boot-commands.asadmin:/opt/payara/config/pre-boot-commands.asadmin:ro
 
       # (2) Autodeploy d'un .war (facultatif)
       - ./deploy:/opt/payara/appserver/glassfish/domains/domain1/autodeploy
