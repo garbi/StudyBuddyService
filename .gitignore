@@ -39,3 +39,6 @@ build/
 
 ### Docker ###
 **/target
+**/payara-sdk
+**/deploy
+**/docker

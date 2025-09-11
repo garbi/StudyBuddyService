@@ -13,23 +13,42 @@ services:
       timeout: 5s
       retries: 10
 
-
   payara:
     container_name: payara
-    image: payara/server-full:6.2025.8-jdk17
+    build:
+      context: .
+      dockerfile: ./Dockerfile
     env_file: .env
     environment:
-      PAYARA_ARGS: "--debug=true"  # JDWP actif
-      ADMIN_PASSWORD: "admin"                    # mot de passe admin (adaptable)
-      SECURE_ADMIN: "false"
+      SECURE_ADMIN: "true"
+      ADMIN_USER: "${ADMIN_USER}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD}"
+      # Dossier dans le conteneur où exporter le SDK (monté ci-dessous)
+      EXPORT_SDK_DIR: "/sdk"
+      JAVA_TOOL_OPTIONS: ""
+      JDK_JAVA_OPTIONS: ""
+      HOST_PATH: ${PAYARA_DOCKER_HOST_PATH}
+      CONTAINER_PATH: "/workspace"
     ports:
-      - "8080:8080"   # applis
-      - "4848:4848"   # admin
-      - "9009:9009"   # debug
-    #if you need to rebuild the server config, make sure to delete the volumes with docker compose down -v
+      - "8080:8080"   # apps
+      - "4848:4848"   # admin (HTTPS si SECURE_ADMIN=true)
+      - "9009:9009"   # debug JDWP
+    # si vous devez reconstruire la config : docker compose down -v
     volumes:
-      - ./docker/post-boot-commands.asadmin:/opt/payara/config/post-boot-commands.asadmin:ro
-      - ./docker/pre-boot-commands.asadmin:/opt/payara/config/pre-boot-commands.asadmin:ro
+      # (1) Scripts asadmin (si tu préfères les monter plutôt que les copier dans l'image)
+      #- ./docker/post-boot-commands.asadmin:/opt/payara/config/post-boot-commands.asadmin:ro
+      #- ./docker/pre-boot-commands.asadmin:/opt/payara/config/pre-boot-commands.asadmin:ro
+
+      # (2) Autodeploy d'un .war (facultatif)
+      - ./deploy:/opt/payara/appserver/glassfish/domains/domain1/autodeploy
+
+      # (3) Volume pour exporter le SDK Payara (IntelliJ "Application server")
+      #     -> après le démarrage, tu auras ./payara-sdk/appserver côté hôte
+      - ./payara-sdk:/sdk
+
+      # (4) Mapping "Docker Volume" IntelliJ (exploded artifact) : HOST_PATH ABSOLU requis
+      #     Renseigne PAYARA_DOCKER_HOST_PATH dans .env (ex: D:/projets/app/target/exploded)
+      - ${PAYARA_DOCKER_HOST_PATH}:/workspace
 
 volumes:
   db_data:

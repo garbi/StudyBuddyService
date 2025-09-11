@@ -1,8 +1,20 @@
-# Attached debug
+# Désactiver tout debug interne & nettoyer d’anciennes options (les \: sont VOLONTAIRES)
+set configs.config.server-config.java-config.debug-enabled=false
+delete-jvm-options "-agentlib\:jdwp=transport=dt_socket,server=y,suspend=n,address=9009"
+delete-jvm-options "-agentlib\:jdwp=transport=dt_socket,server=y,suspend=n,address=\*\:9009"
+delete-jvm-options "-agentlib\:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0\:9009"
+delete-jvm-options "--debug"
+
+# Méthode recommandée : utiliser debug-options (avec \: échappés)
+set configs.config.server-config.java-config.debug-options="-agentlib\:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0\:9009"
 set configs.config.server-config.java-config.debug-enabled=true
+
+# (optionnel) logs JDWP JDK9+
+create-jvm-options "-Xlog:jdwp=trace"
+
 #set configs.config.server-config.java-config.debug-options="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:9009"
-create-jvm-options --target=server-config -- "-Xlog:jdwp=trace"
-create-jvm-options --target=server-config -- "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:9009"
+#create-jvm-options --target=server-config -- "-Xlog:jdwp=trace"
+#create-jvm-options --target=server-config -- "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:9009"
 
 
 #Listen debug
