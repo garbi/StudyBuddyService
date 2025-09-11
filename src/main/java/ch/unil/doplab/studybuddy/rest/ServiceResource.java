@@ -16,31 +16,10 @@ public class ServiceResource {
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("/populateDB")
-    public Response populateDB() {
-        state.populateDB();
-        return Response.ok("StudyBuddy database was populated at " + LocalDateTime.now()).build();
-    }
-
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    @Path("/clearDB")
-    public Response clearDB() {
-        try {
-            state.clearDB();
-        } catch (Exception e) {
-            return Response.serverError().entity(e.getMessage()).build();
-        }
-        state.clearDB();
-        return Response.ok("StudyBuddy database was cleared at " + LocalDateTime.now()).build();
-    }
-
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    @Path("/resetDB")
-    public Response resetDB() {
-        state.resetDB();
-        return Response.ok("StudyBuddy database was reset at " + LocalDateTime.now()).build();
+    @Path("/reset")
+    public Response reset() {
+        state.init();
+        return Response.ok("StudyBuddy Service was reset at " + LocalDateTime.now()).build();
     }
 
     @GET
@@ -70,7 +49,9 @@ public class ServiceResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/bookLesson")
     public Lesson bookLesson(Lesson lesson) {
-        state.bookLesson(lesson);
+        var student = state.getStudent(lesson.getStudentID());
+        var teacher = state.getTeacher(lesson.getTeacherID());
+        lesson.book(teacher, student);
         return lesson;
     }
 
@@ -79,7 +60,9 @@ public class ServiceResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/cancelLesson")
     public void cancelLesson(Lesson lesson) {
-        state.cancelLesson(lesson);
+        var student = state.getStudent(lesson.getStudentID());
+        var teacher = state.getTeacher(lesson.getTeacherID());
+        lesson.cancel(teacher, student);
     }
 
     @PUT
@@ -87,7 +70,11 @@ public class ServiceResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/rateLesson/{rating}")
     public void rateLesson(Lesson lesson, @PathParam("rating") String ratingName) {
-        state.rateLesson(lesson, Rating.valueOf(ratingName));
+        var rating = Rating.valueOf(ratingName);
+        var student = state.getStudent(lesson.getStudentID());
+        var teacher = state.getTeacher(lesson.getTeacherID());
+        teacher.rateLesson(lesson.getTimeslot(), rating);
+        student.rateLesson(lesson.getTimeslot(), rating);
     }
 
     @GET

@@ -1,19 +1,4 @@
 services:
-  #MySQL image
-  db:
-    container_name: database
-    image: mysql:8.0.43
-    env_file: .env
-    volumes:
-      - db_data:/var/lib/mysql
-    ports:
-      - "3307:3306"
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
   #Copying payara sdk application server to payara-sdk folder
   payara-sdk-export:
     container_name: payara-sdk-exporter
@@ -34,13 +19,7 @@ services:
   #Payara server
   payara:
     container_name: payara
-    build:
-      context: .
-      dockerfile: ./Dockerfile
     env_file: .env
-    depends_on:
-      db:
-        condition: service_healthy
     environment:
       SECURE_ADMIN: "true"
       ADMIN_USER: "${ADMIN_USER}"
@@ -51,7 +30,6 @@ services:
       - "${DEBUG_PORT}:${DEBUG_PORT}"   #debug JDWP
     volumes:
       #Directly mounting settings to the server config -> needs a restart
-      - ./docker/post-boot-commands.asadmin:/opt/payara/config/post-boot-commands.asadmin:ro
       - ./docker/pre-boot-commands.asadmin:/opt/payara/config/pre-boot-commands.asadmin:ro
       #Can drop .war in the folder for auto deploy but not necessary
       - ./deploy:/opt/payara/appserver/glassfish/domains/domain1/autodeploy
