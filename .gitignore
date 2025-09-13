@@ -38,7 +38,6 @@ build/
 .DS_Store
 
 ### Docker ###
-**/target
-**/payara-sdk
-**/deploy
-**/docker
+/target/
+/payara-sdk/
+/deploy/
