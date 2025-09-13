@@ -19,6 +19,7 @@ services:
   #Payara server
   payara:
     container_name: payara
+    image: payara/server-full:6.2025.8-jdk17
     env_file: .env
     environment:
       SECURE_ADMIN: "true"
