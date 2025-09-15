@@ -1,5 +1,5 @@
 services:
-  #Copying payara sdk application server to payara-sdk folder
+  #Copying payara sdk application server to payara-sdk folder - unnecessary if you already have a payara copy
   payara-sdk-export:
     container_name: payara-sdk-exporter
     image: payara/server-full:6.2025.8-jdk17
