@@ -1,5 +1,7 @@
 services:
   #MySQL image
+  #Make sure you have plugged your jdbc pool and associated resource on the server
+  #(through post-boot-commands and recreating the docker image or manually through the admin console @localhost:4848
   db:
     container_name: database
     image: mysql:8.0.43
@@ -13,23 +15,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
-
-  #Copying payara sdk application server to payara-sdk folder
-  payara-sdk-export:
-    container_name: payara-sdk-exporter
-    image: payara/server-full:6.2025.8-jdk17
-    user: "0:0"
-    entrypoint: [ "/bin/sh","-lc" ]
-    command:
-    - >
-      if [ -x /sdk/appserver/bin/asadmin ]; then
-            echo "[sdk export] appserver already exists, skip"; exit 0;
-      fi;
-      echo "[sdk export] copying /opt/payara/appserver -> /sdk ...";
-      cp -a /opt/payara/appserver /sdk/ && echo "[export] done"
-    volumes:
-      - ./payara-sdk:/sdk:rw
-    restart: "no"
 
   #Payara server
   payara:
@@ -53,8 +38,9 @@ services:
       #Directly mounting settings to the server config -> needs a restart
       - ./docker/post-boot-commands.asadmin:/opt/payara/config/post-boot-commands.asadmin:ro
       - ./docker/pre-boot-commands.asadmin:/opt/payara/config/pre-boot-commands.asadmin:ro
-      #Can drop .war in the folder for auto deploy but not necessary
-      - ./deploy:/opt/payara/appserver/glassfish/domains/domain1/autodeploy
+      #auto deploy (maps local target artefact to container) - You must have StudyBuddyService and StudyBuddyWebapp projects at the same file system level
+      - ./target/StudyBuddyService-1.0-SNAPSHOT.war:/opt/payara/appserver/glassfish/domains/domain1/autodeploy/StudyBuddyService-1.0-SNAPSHOT.war
+      - ../StudyBuddyWebapp/target/StudyBuddyWebapp-1.0-SNAPSHOT.war:/opt/payara/appserver/glassfish/domains/domain1/autodeploy/StudyBuddyWebapp-1.0-SNAPSHOT.war
       #Workspace volumes
       - ${SERVICE_HOST_PATH}:/workspace-service
       - ${WEBAPP_HOST_PATH}:/workspace-webapp
