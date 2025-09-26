@@ -1,5 +1,3 @@
 #Debugger settings
 set configs.config.server-config.java-config.debug-enabled=true
 set configs.config.server-config.java-config.debug-options=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9001
-
-
