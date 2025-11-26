@@ -10,11 +10,6 @@ services:
       - db_data:/var/lib/mysql
     ports:
       - "3307:3306"
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
 
   #Payara server
   payara:
@@ -23,9 +18,6 @@ services:
       context: .
       dockerfile: ./Dockerfile
     env_file: .env
-    depends_on:
-      db:
-        condition: service_healthy
     environment:
       SECURE_ADMIN: "true"
       ADMIN_USER: "${ADMIN_USER}"
@@ -41,9 +33,6 @@ services:
       #auto deploy (maps local target artefact to container) - You must have StudyBuddyService and StudyBuddyWebapp projects at the same file system level
       - ./target/StudyBuddyService-1.0-SNAPSHOT.war:/opt/payara/appserver/glassfish/domains/domain1/autodeploy/StudyBuddyService-1.0-SNAPSHOT.war
       - ../StudyBuddyWebapp/target/StudyBuddyWebapp-1.0-SNAPSHOT.war:/opt/payara/appserver/glassfish/domains/domain1/autodeploy/StudyBuddyWebapp-1.0-SNAPSHOT.war
-      #Workspace volumes
-      - ${SERVICE_HOST_PATH}:/workspace-service
-      - ${WEBAPP_HOST_PATH}:/workspace-webapp
 
 volumes:
   db_data:
